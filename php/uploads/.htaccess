@@ -1,0 +1,13 @@
+# 上传目录安全配置
+# 1. 关闭目录列表
+Options -Indexes
+
+# 2. 禁止将上传目录中的任何文件当作 PHP 执行（防止上传漏洞被利用）
+<FilesMatch "\.(php|php3|php4|php5|php7|phtml|phar)$">
+    Require all denied
+</FilesMatch>
+
+# 3. 只允许浏览器直接获取图片类型
+<FilesMatch "^(?!.*\.(jpg|jpeg|png|gif|webp|bmp)$).*$">
+    Require all denied
+</FilesMatch>

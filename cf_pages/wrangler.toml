@@ -1,0 +1,19 @@
+name = "cuisines"
+compatibility_date = "2024-01-01"
+
+# ============================================================
+# 部署前准备（完整流程见仓库根目录 README.md）
+#   1. 创建 D1 数据库： npx wrangler d1 create cuisines-db
+#   2. 创建 R2 存储桶： npx wrangler r2 bucket create cuisines-images
+#   3. 把下面 database_id 替换为第 1 步返回的真实 ID
+#   4. 初始化表结构：   npx wrangler d1 execute cuisines-db --file=./migrations/0001_init.sql
+# ============================================================
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cuisines-db"
+database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "cuisines-images"

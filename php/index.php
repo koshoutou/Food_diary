@@ -1,0 +1,92 @@
+<?php
+/**
+ * 家·肴 - 首页
+ * 与 Cloudflare Pages 版共用同一套前端脚本，仅通过 window.API 切换后端接口地址
+ */
+?>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家·肴 - 家庭美食记录平台</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- 右上角控制按钮（仅主题切换，排序由管理员在管理页设置） -->
+  <div class="top-controls">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换主题">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+
+  <!-- 侧边栏 -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title"><br></div>
+      <div class="sidebar-subtitle"><br></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.php" class="nav-item active"><i class="fas fa-home"></i>主页</a>
+      <a href="admin.php" class="nav-item"><i class="fas fa-utensils"></i>菜品管理</a>
+    </nav>
+    <div class="sidebar-announcement">
+      <div class="announcement-title"><i class="fas fa-bullhorn"></i> 公告</div>
+      <div class="announcement-content">欢迎来到家·肴美食记录平台！这里记录着家里的各种家庭菜品，用来留住家的味道，方便日后复刻。</div>
+    </div>
+    <div class="github-link">
+      <a href="https://github.com/koshoutou/Food_diary" target="_blank" style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;padding:15px;margin:10px;border-radius:8px;transition:all 0.3s ease;background:rgba(255,255,255,0.1);">
+        <i class="fab fa-github" style="margin-right:8px;"></i><span>本项目已在 GitHub 开源</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="menu-toggle" id="menuToggle"><span></span></div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <h1>家·肴</h1>
+      <p>分享家庭美食，记录生活百味!</p>
+    </div>
+    <div class="search-container">
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="搜索菜品名称..." id="searchInput">
+        <button class="search-btn" onclick="searchDishes()"><i class="fas fa-search"></i> 搜索</button>
+      </div>
+    </div>
+    <div id="dishesContainer" class="dishes-grid"><div class="loading">加载中...</div></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- 图片灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+      <button class="lightbox-nav lightbox-prev" onclick="lightboxPrev()"><i class="fas fa-chevron-left"></i></button>
+      <div class="lightbox-main"><img id="lightboxImg" src="" alt=""></div>
+      <button class="lightbox-nav lightbox-next" onclick="lightboxNext()"><i class="fas fa-chevron-right"></i></button>
+      <div class="lightbox-footer">
+        <span id="lightboxCounter" class="lightbox-counter"></span>
+        <div id="lightboxThumbs" class="lightbox-thumbs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 后端接口地址表：PHP 版直接访问 api/*.php（无需 URL 重写） -->
+  <script>
+    window.API = {
+      login:     'api/login.php',
+      dishes:    'api/dishes.php',
+      upload:    'api/upload.php',
+      images:    'api/images.php',
+      sort:      'api/sort.php',
+      imageSort: 'api/image-sort.php',
+      settings:  'api/settings.php'
+    };
+  </script>
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

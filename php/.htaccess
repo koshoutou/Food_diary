@@ -1,0 +1,21 @@
+# 家·肴 PHP 版 · Apache 配置
+# 放在 php/ 目录（即站点根目录）中生效
+
+# 关闭目录列表，避免泄露文件结构
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 禁止通过 HTTP 直接访问内部目录（配置、数据库脚本、命令行工具）
+    RewriteRule ^(includes|database|tools)/ - [F,L]
+</IfModule>
+
+# 为图片等静态资源设置长缓存
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png  "access plus 30 days"
+    ExpiresByType image/gif  "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+</IfModule>

@@ -1,0 +1,168 @@
+<?php
+/**
+ * 家·肴 - 管理页
+ * 与 Cloudflare Pages 版共用同一套前端脚本，仅通过 window.API 切换后端接口地址
+ */
+?>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家·肴 - 菜品管理</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- 右上角控制按钮 -->
+  <div class="top-controls">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换主题">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+    <button class="theme-toggle hidden" id="logoutBtn" onclick="doLogout()" title="退出登录">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+    <!-- 首页排序方式切换（管理员控制） -->
+    <div class="sort-switch" title="设置首页排序方式">
+      <span class="sort-label" id="sortLabel">时间排序</span>
+      <button class="sort-toggle active" id="sortToggle" onclick="toggleSortSetting()">
+        <span class="sort-toggle-knob"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 侧边栏 -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title"><br></div>
+      <div class="sidebar-subtitle"><br></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.php" class="nav-item"><i class="fas fa-home"></i>主页</a>
+      <a href="admin.php" class="nav-item active"><i class="fas fa-utensils"></i>菜品管理</a>
+    </nav>
+    <div class="sidebar-announcement">
+      <div class="announcement-title"><i class="fas fa-bullhorn"></i> 管理公告</div>
+      <div class="announcement-content">欢迎来到家·肴美食记录平台！在这里可以上传、编辑和管理家里的菜品记录。</div>
+    </div>
+    <div class="github-link">
+      <a href="https://github.com/koshoutou/Food_diary" target="_blank" style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;padding:15px;margin:10px;border-radius:8px;transition:all 0.3s ease;background:rgba(255,255,255,0.1);">
+        <i class="fab fa-github" style="margin-right:8px;"></i><span>本项目已在 GitHub 开源</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="menu-toggle" id="menuToggle"><span></span></div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <h1>菜品管理</h1>
+      <p>上传和管理您的菜品</p>
+    </div>
+
+    <!-- 登录区域 -->
+    <div class="section" id="authSection">
+      <h2><i class="fas fa-lock"></i> 管理员登录</h2>
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input type="text" class="form-input" id="adminUsername" placeholder="请输入用户名" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input type="password" class="form-input" id="adminPassword" placeholder="请输入密码" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">
+        <i class="fas fa-key"></i> 登录
+      </button>
+    </div>
+
+    <!-- 菜品上传区域 -->
+    <div class="section hidden" id="uploadSection">
+      <h2><i class="fas fa-plus-circle"></i> 添加新菜品</h2>
+      <div class="form-group">
+        <label class="form-label">菜品名称 *</label>
+        <input type="text" class="form-input" id="dishName" placeholder="请输入菜品名称">
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注（可选）</label>
+        <textarea class="form-input form-textarea" id="dishNotes" placeholder="请输入备注信息"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传图片</label>
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <p>点击或拖拽文件到此处上传</p>
+          <p style="font-size: 0.9rem; opacity: 0.8;">支持多文件批量上传，单张不超过 10 MB</p>
+        </div>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+        <div class="image-preview" id="imagePreview"></div>
+      </div>
+      <button class="btn btn-success" onclick="saveDish()">
+        <i class="fas fa-save"></i> 保存菜品
+      </button>
+    </div>
+
+    <!-- 菜品管理区域 -->
+    <div class="section hidden" id="manageSection">
+      <h2><i class="fas fa-list"></i> 菜品管理</h2>
+      <div class="search-container" style="margin-bottom: 20px; padding: 20px;">
+        <div class="search-box">
+          <input type="text" class="search-input" placeholder="搜索菜品名称..." id="searchInput">
+          <button class="search-btn" onclick="searchDishes()">
+            <i class="fas fa-search"></i> 搜索
+          </button>
+        </div>
+      </div>
+      <div id="dishesList" class="dishes-list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- 编辑菜品模态框 -->
+  <div class="modal" id="editModal">
+    <div class="modal-overlay" onclick="closeEditModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-edit"></i> 编辑菜品</h3>
+        <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editDishId">
+        <div class="form-group">
+          <label class="form-label">菜品名称 *</label>
+          <input type="text" class="form-input" id="editDishName" placeholder="请输入菜品名称">
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <textarea class="form-input form-textarea" id="editDishNotes" placeholder="请输入备注信息"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeEditModal()" style="background: #6b7280;">
+          <i class="fas fa-times"></i> 取消
+        </button>
+        <button class="btn btn-primary" onclick="saveEditDish()">
+          <i class="fas fa-save"></i> 保存修改
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 后端接口地址表：PHP 版直接访问 api/*.php（无需 URL 重写） -->
+  <script>
+    window.API = {
+      login:     'api/login.php',
+      dishes:    'api/dishes.php',
+      upload:    'api/upload.php',
+      images:    'api/images.php',
+      sort:      'api/sort.php',
+      imageSort: 'api/image-sort.php',
+      settings:  'api/settings.php'
+    };
+  </script>
+  <script type="module" src="assets/js/admin.js"></script>
+</body>
+</html>
